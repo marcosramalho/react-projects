@@ -3,6 +3,9 @@ import React from 'react';
 import Input from '../forms/input';
 import Button from '../forms/button';
 import useForm from '../../hooks/useForm';
+import useFetch from '../../hooks/useFetch';
+import Error from '../helper/error';
+
 import { USER_POST } from '../../api';
 import { UserContext } from '../../userContext';
 
@@ -12,6 +15,7 @@ const LoginCreate = () => {
   const password = useForm('password');
 
   const { userLogin } = React.useContext(UserContext);
+  const { loading, request, error } = useFetch();
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -21,8 +25,7 @@ const LoginCreate = () => {
       password: password.value,
     });
 
-    console.log(url, options);
-    const response = await fetch(url, options);
+    const { response } = await request(url, options);
     if (response.ok) userLogin(username.value, password.value);
   }
 
@@ -33,7 +36,12 @@ const LoginCreate = () => {
         <Input label="Usuário" type="text" name="username" {...username} />
         <Input label="Email" type="text" name="email" {...email} />
         <Input label="Senha" type="password" name="password" {...password} />
-        <Button>Cadastrar</Button>
+        {loading ? (
+          <Button disabled>Cadastrando...</Button>
+        ) : (
+          <Button>Cadastrar</Button>
+        )}
+        <Error error={error} />
       </form>
     </section>
   );
